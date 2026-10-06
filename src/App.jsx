@@ -15,6 +15,7 @@ export default function App() {
   const [schedule, setSchedule] = useState(null);
   const [remainingSeconds, setRemainingSeconds] = useState(null);
   const [hasEndedNotice, setHasEndedNotice] = useState(false);
+  const [cameraStatus, setCameraStatus] = useState('READY');
 
   // Real countdown timer effect
   useEffect(() => {
@@ -90,11 +91,12 @@ export default function App() {
 
       {/* Primary Dashboard Grid */}
       <main className="dashboard-grid">
-        {/* Left Column: Camera Viewport */}
+        {/* Left Column: Camera Viewport with Live Webcam Stream */}
         <section aria-label="Camera Feed">
           <CameraPreview 
             isActive={isProtectionActive} 
-            countdown={formattedCountdown} 
+            countdown={formattedCountdown}
+            onCameraStateChange={setCameraStatus}
           />
         </section>
 
@@ -109,6 +111,7 @@ export default function App() {
           <StatusSection 
             isActive={isProtectionActive} 
             schedule={schedule} 
+            cameraStatus={cameraStatus}
           />
           <ActivitySection 
             isActive={isProtectionActive} 
@@ -128,7 +131,7 @@ export default function App() {
       {/* Application Footer */}
       <footer className="app-footer">
         <span>AI Intrusion Detection System &bull; College Project Prototype</span>
-        <span>Version 1.1.0 &bull; Protection Scheduling &amp; Timer Active</span>
+        <span>Version 1.2.0 &bull; Live Optical Surveillance Feed Active</span>
       </footer>
     </div>
   );

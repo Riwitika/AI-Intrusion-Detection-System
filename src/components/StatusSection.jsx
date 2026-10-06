@@ -1,7 +1,7 @@
 import React from 'react';
 import { Activity, Cpu, Camera, BellRing, Server } from 'lucide-react';
 
-export default function StatusSection({ isActive, schedule }) {
+export default function StatusSection({ isActive, schedule, cameraStatus }) {
   return (
     <div className="card-panel">
       <div className="card-header">
@@ -36,7 +36,15 @@ export default function StatusSection({ isActive, schedule }) {
             <Camera size={16} color="#94a3b8" />
             <span>Optical Interface</span>
           </div>
-          <span className="indicator-val val-muted">Sensor Inactive</span>
+          <span className={`indicator-val ${cameraStatus === 'ACTIVE' ? 'val-green' : cameraStatus === 'STARTING' ? 'val-amber' : 'val-muted'}`}>
+            {cameraStatus === 'ACTIVE'
+              ? 'CAMERA ACTIVE'
+              : cameraStatus === 'STARTING'
+              ? 'STARTING CAMERA...'
+              : cameraStatus === 'OFF'
+              ? 'CAMERA OFF'
+              : 'CAMERA READY'}
+          </span>
         </div>
 
         <div className="status-indicator-row">

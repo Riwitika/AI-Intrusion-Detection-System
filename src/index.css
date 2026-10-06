@@ -1351,3 +1351,156 @@ body {
   cursor: not-allowed;
   box-shadow: none;
 }
+
+/* ==========================================================================
+   LIVE WEBCAM SURVEILLANCE STYLES (PROMPT 3)
+   ========================================================================== */
+
+.camera-video-feed {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  transform: scaleX(-1); /* Mirror camera for natural MacBook webcam orientation */
+  transition: opacity 0.35s ease;
+  background: #000000;
+}
+
+.camera-video-feed.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.camera-video-feed.visible {
+  opacity: 1;
+}
+
+.camera-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  background: rgba(239, 68, 68, 0.16);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #f87171;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  animation: pulse-live 2s infinite ease-in-out;
+}
+
+.camera-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+}
+
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
+}
+
+.camera-active-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reticle-center {
+  width: 48px;
+  height: 48px;
+  border: 1px dashed rgba(52, 211, 153, 0.35);
+  border-radius: 50%;
+  position: relative;
+  opacity: 0.75;
+}
+
+.reticle-center::before,
+.reticle-center::after {
+  content: '';
+  position: absolute;
+  background: rgba(52, 211, 153, 0.6);
+}
+
+.reticle-center::before {
+  top: 50%;
+  left: -8px;
+  right: -8px;
+  height: 1px;
+  transform: translateY(-50%);
+}
+
+.reticle-center::after {
+  left: 50%;
+  top: -8px;
+  bottom: -8px;
+  width: 1px;
+  transform: translateX(-50%);
+}
+
+.camera-content.camera-error-state {
+  max-width: 420px;
+}
+
+.camera-icon-wrapper.error-badge {
+  background: rgba(244, 63, 94, 0.12);
+  border-color: rgba(244, 63, 94, 0.35);
+  box-shadow: 0 0 15px rgba(244, 63, 94, 0.2);
+}
+
+.camera-text-main.error-title {
+  color: #fb7185;
+}
+
+.camera-text-sub.error-desc {
+  color: #fecdd3;
+  line-height: 1.45;
+}
+
+.btn-retry-camera {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.5rem;
+  padding: 0.55rem 1rem;
+  background: rgba(244, 63, 94, 0.15);
+  border: 1px solid rgba(244, 63, 94, 0.4);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-retry-camera:hover {
+  background: rgba(244, 63, 94, 0.28);
+  border-color: rgba(244, 63, 94, 0.6);
+  transform: translateY(-1px);
+}
+
+.spin-animation {
+  animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.camera-icon-wrapper.pulse-blue {
+  background: rgba(14, 165, 233, 0.12);
+  border-color: rgba(14, 165, 233, 0.4);
+  box-shadow: 0 0 15px rgba(14, 165, 233, 0.2);
+}
