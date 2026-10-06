@@ -34,6 +34,28 @@ export default function CameraPreview({
   const inferenceIntervalRef = useRef(null);
   const isInferringRef = useRef(false);
 
+  // Keep references to props so async intervals always have access to the latest callbacks/state
+  const isActiveRef = useRef(isActive);
+  const onCameraStateChangeRef = useRef(onCameraStateChange);
+  const onAiEngineStatusChangeRef = useRef(onAiEngineStatusChange);
+  const onDetectionCountChangeRef = useRef(onDetectionCountChange);
+
+  useEffect(() => {
+    isActiveRef.current = isActive;
+  }, [isActive]);
+
+  useEffect(() => {
+    onCameraStateChangeRef.current = onCameraStateChange;
+  }, [onCameraStateChange]);
+
+  useEffect(() => {
+    onAiEngineStatusChangeRef.current = onAiEngineStatusChange;
+  }, [onAiEngineStatusChange]);
+
+  useEffect(() => {
+    onDetectionCountChangeRef.current = onDetectionCountChange;
+  }, [onDetectionCountChange]);
+
   // Camera states: 'READY' | 'STARTING' | 'ACTIVE' | 'OFF' | 'ERROR'
   const [cameraState, setCameraState] = useState('READY');
   const [cameraErrorMsg, setCameraErrorMsg] = useState(null);
@@ -47,16 +69,16 @@ export default function CameraPreview({
   // Notify parent of state changes safely
   const notifyCameraState = (state) => {
     setCameraState(state);
-    if (onCameraStateChange) onCameraStateChange(state);
+    if (onCameraStateChangeRef.current) onCameraStateChangeRef.current(state);
   };
 
   const notifyAiEngineStatus = (status) => {
-    if (onAiEngineStatusChange) onAiEngineStatusChange(status);
+    if (onAiEngineStatusChangeRef.current) onAiEngineStatusChangeRef.current(status);
   };
 
   const notifyDetectionCount = (count) => {
     setDetectedCount(count);
-    if (onDetectionCountChange) onDetectionCountChange(count);
+    if (onDetectionCountChangeRef.current) onDetectionCountChangeRef.current(count);
   };
 
   // Stop media tracks and clear video source
@@ -165,7 +187,7 @@ export default function CameraPreview({
 
       // Controlled inference interval (6–7 FPS)
       inferenceIntervalRef.current = setInterval(async () => {
-        if (!isActive || !videoRef.current || videoRef.current.readyState < 2) {
+        if (!isActiveRef.current || !videoRef.current || videoRef.current.readyState < 2) {
           return;
         }
 
@@ -371,22 +393,38 @@ export default function CameraPreview({
           </div>
         )}
 
+        {/* AI Detection Active - Person Detected Pill over video */}
+        {cameraState === 'ACTIVE' && aiState === 'PERSON_DETECTED' && (
+          <div className="ai-status-overlay-pill detected">
+            <UserCheck size={13} color="#fb7185" />
+            <span>AI DETECTION: PERSON DETECTED</span>
+          </div>
+        )}
+
+        {/* AI Detection Active - No Person Detected Pill over video */}
+        {cameraState === 'ACTIVE' && aiState === 'NO_PERSON' && (
+          <div className="ai-status-overlay-pill no-person">
+            <UserX size={13} color="#94a3b8" />
+            <span>AI DETECTION: NO PERSON DETECTED</span>
+          </div>
+        )}
+
         {/* HUD Telemetry Bar */}
         <div className="camera-hud-bar">
           <div className="camera-meta-tag">
             <span>RES: {resolution}</span>
           </div>
 
-          {/* Prompt 4 AI Detection Status Display */}
+          {/* AI Detection Status Display */}
           <div className="camera-meta-tag">
             <Cpu size={13} color="#0ea5e9" />
             <span>
               AI:{' '}
               <strong style={{
                 color: aiState === 'PERSON_DETECTED' 
-                  ? '#34d399' 
+                  ? '#fb7185' 
                   : aiState === 'NO_PERSON' 
-                  ? '#94a3b8' 
+                  ? '#34d399' 
                   : aiState === 'INITIALIZING' 
                   ? '#38bdf8' 
                   : aiState === 'UNAVAILABLE' 
@@ -394,7 +432,7 @@ export default function CameraPreview({
                   : '#64748b'
               }}>
                 {aiState === 'PERSON_DETECTED' 
-                  ? `PERSON DETECTED (${detectedCount})`
+                  ? 'PERSON DETECTED'
                   : aiState === 'NO_PERSON' 
                   ? 'NO PERSON DETECTED'
                   : aiState === 'INITIALIZING' 

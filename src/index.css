@@ -1586,8 +1586,22 @@ body {
   background: rgba(28, 10, 16, 0.88);
 }
 
+.ai-status-overlay-pill.detected {
+  border-color: rgba(244, 63, 94, 0.6);
+  color: #fb7185;
+  background: rgba(28, 10, 16, 0.9);
+  animation: pulse-alert 1.6s infinite ease-in-out;
+}
+
+.ai-status-overlay-pill.no-person {
+  border-color: rgba(14, 165, 233, 0.35);
+  color: #94a3b8;
+  background: rgba(10, 16, 28, 0.88);
+}
+
 .indicator-val.val-danger {
   background: rgba(244, 63, 94, 0.15);
   color: #fb7185;
   border: 1px solid rgba(244, 63, 94, 0.35);
 }
+
