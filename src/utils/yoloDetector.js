@@ -23,6 +23,8 @@ if (typeof window !== 'undefined') {
   try {
     ort.env.wasm.numThreads = 1; // Single-thread WASM: zero SharedArrayBuffer header requirements
     ort.env.wasm.simd = true;
+    // Serve WASM binaries directly from CDN matching installed onnxruntime-web version
+    ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/';
   } catch (e) {
     console.warn('ORT env configuration warning:', e);
   }
@@ -45,8 +47,17 @@ export async function loadYoloModel() {
 
   isModelLoading = true;
   try {
-    // 1. Attempt loading locally hosted model
-    const session = await ort.InferenceSession.create(YOLO_MODEL_PATH, {
+    // 1. Attempt loading locally hosted model buffer
+    let modelSource = YOLO_MODEL_PATH;
+    if (typeof window !== 'undefined') {
+      const response = await fetch(YOLO_MODEL_PATH);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch model from ${YOLO_MODEL_PATH}: HTTP ${response.status}`);
+      }
+      modelSource = await response.arrayBuffer();
+    }
+
+    const session = await ort.InferenceSession.create(modelSource, {
       executionProviders: ['wasm']
     });
     cachedSession = session;
@@ -55,7 +66,16 @@ export async function loadYoloModel() {
     console.warn('Local YOLO11n load failed, trying remote fallback...', primaryError);
     try {
       // 2. Fallback to official Ultralytics release asset URL
-      const session = await ort.InferenceSession.create(YOLO_REMOTE_FALLBACK_URL, {
+      let fallbackSource = YOLO_REMOTE_FALLBACK_URL;
+      if (typeof window !== 'undefined') {
+        const response = await fetch(YOLO_REMOTE_FALLBACK_URL);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch remote model: HTTP ${response.status}`);
+        }
+        fallbackSource = await response.arrayBuffer();
+      }
+
+      const session = await ort.InferenceSession.create(fallbackSource, {
         executionProviders: ['wasm']
       });
       cachedSession = session;
