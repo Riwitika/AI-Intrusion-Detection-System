@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, Radio, Clock } from 'lucide-react';
 
-export default function Header({ isReady }) {
+export default function Header({ isActive, isReady }) {
+  const active = isActive || isReady;
   const [time, setTime] = useState('');
 
   useEffect(() => {
@@ -30,9 +31,9 @@ export default function Header({ isReady }) {
 
       <div className="header-meta">
         <div className="meta-pill">
-          <Radio size={14} color={isReady ? '#10b981' : '#64748b'} />
-          <span>SECURITY NODE: <strong>ACTIVE</strong></span>
-          <span className={`status-dot ${isReady ? 'ready' : 'active'}`}></span>
+          <Radio size={14} color={active ? '#10b981' : '#64748b'} />
+          <span>SECURITY NODE: <strong>{active ? 'ARMED' : 'STANDBY'}</strong></span>
+          <span className={`status-dot ${active ? 'ready' : 'active'}`}></span>
         </div>
         <div className="meta-pill">
           <Clock size={14} color="#94a3b8" />

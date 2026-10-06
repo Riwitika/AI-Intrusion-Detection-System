@@ -1,7 +1,12 @@
 import React from 'react';
-import { Power, Shield, CheckCircle } from 'lucide-react';
+import { Power, Shield, CheckCircle, Clock } from 'lucide-react';
 
-export default function ControlPanel({ isReady, onStartProtection, onStopProtection }) {
+export default function ControlPanel({ 
+  isActive, 
+  countdown, 
+  onOpenScheduleModal, 
+  onStopProtection 
+}) {
   return (
     <div className="card-panel">
       <div className="card-header">
@@ -15,15 +20,15 @@ export default function ControlPanel({ isReady, onStartProtection, onStopProtect
       <div className="control-actions-wrapper">
         <button
           id="btn-catch-intruder"
-          className={`btn-primary ${isReady ? 'btn-active-state' : ''}`}
-          onClick={onStartProtection}
-          disabled={isReady}
-          title={isReady ? 'System is already armed and ready' : "Activate intrusion monitoring"}
+          className={`btn-primary ${isActive ? 'btn-active-state' : ''}`}
+          onClick={onOpenScheduleModal}
+          disabled={isActive}
+          title={isActive ? 'Protection is currently active and running' : 'Set protection time and initiate surveillance'}
         >
-          {isReady ? (
+          {isActive ? (
             <>
               <CheckCircle size={20} />
-              <span>PROTECTION ACTIVE & READY</span>
+              <span>PROTECTION ACTIVE &bull; {countdown || 'RUNNING'}</span>
             </>
           ) : (
             <>
@@ -36,8 +41,8 @@ export default function ControlPanel({ isReady, onStartProtection, onStopProtect
           id="btn-stop-protection"
           className="btn-secondary"
           onClick={onStopProtection}
-          disabled={!isReady}
-          title={!isReady ? 'Protection is currently off' : 'Disarm protection and return to idle'}
+          disabled={!isActive}
+          title={!isActive ? 'Protection is currently inactive' : 'Disarm protection and stop active countdown'}
         >
           <Power size={18} />
           <span>Stop Protection</span>

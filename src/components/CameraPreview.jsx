@@ -1,7 +1,7 @@
 import React from 'react';
-import { VideoOff, Eye, Maximize2 } from 'lucide-react';
+import { VideoOff, Eye } from 'lucide-react';
 
-export default function CameraPreview({ isReady }) {
+export default function CameraPreview({ isActive, countdown }) {
   return (
     <div className="card-panel camera-container">
       <div className="card-header">
@@ -12,7 +12,7 @@ export default function CameraPreview({ isReady }) {
         <span className="card-badge">LIVE SENSOR 01</span>
       </div>
 
-      <div className={`camera-viewport ${isReady ? 'active-view' : ''}`}>
+      <div className={`camera-viewport ${isActive ? 'active-view' : ''}`}>
         {/* HUD Crosshairs */}
         <div className="hud-corner hud-top-left"></div>
         <div className="hud-corner hud-top-right"></div>
@@ -28,7 +28,7 @@ export default function CameraPreview({ isReady }) {
           </div>
           <h3 className="camera-text-main">Camera Offline</h3>
           <p className="camera-text-sub">
-            {isReady 
+            {isActive 
               ? 'Optical sensor is armed in standby mode. Video pipeline ready for camera integration.' 
               : 'UI placeholder only. Camera hardware stream will be activated in upcoming modules.'}
           </p>
@@ -39,7 +39,7 @@ export default function CameraPreview({ isReady }) {
             <span>RES: 1080P FHD</span>
           </div>
           <div className="camera-meta-tag">
-            <span>STATUS: {isReady ? 'READY (STANDBY)' : 'OFFLINE'}</span>
+            <span>STATUS: {isActive ? `ACTIVE (${countdown || 'RUNNING'})` : 'OFFLINE'}</span>
           </div>
           <div className="camera-meta-tag">
             <span>FPS: 0.0</span>

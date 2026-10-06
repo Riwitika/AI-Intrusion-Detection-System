@@ -1,7 +1,7 @@
 import React from 'react';
-import { ShieldCheck, ListFilter } from 'lucide-react';
+import { ShieldCheck, History, Clock } from 'lucide-react';
 
-export default function ActivitySection({ isReady }) {
+export default function ActivitySection({ isActive, schedule, hasEndedNotice }) {
   return (
     <div className="card-panel">
       <div className="card-header">
@@ -14,12 +14,16 @@ export default function ActivitySection({ isReady }) {
 
       <div className="activity-empty-box">
         <div className="activity-empty-icon">
-          <ShieldCheck size={26} color={isReady ? '#10b981' : '#64748b'} />
+          <ShieldCheck size={26} color={isActive ? '#10b981' : hasEndedNotice ? '#f59e0b' : '#64748b'} />
         </div>
-        <p className="activity-empty-text">No intrusion events detected</p>
+        <p className="activity-empty-text">
+          {hasEndedNotice ? 'Protection period ended.' : 'No intrusion events detected'}
+        </p>
         <span className="activity-empty-subtext">
-          {isReady
-            ? 'Perimeter sweep running. System is actively logging anomalies and security breaches.'
+          {isActive && schedule
+            ? `Active surveillance schedule: ${schedule.startTimeFormatted} \u2014 ${schedule.endTimeFormatted} (${schedule.durationStr}). Real-time telemetry monitoring.`
+            : hasEndedNotice
+            ? 'Surveillance duration completed. All zones secured with zero intrusion breaches detected.'
             : 'Perimeter monitoring is currently off. All audit sensors are resting.'}
         </span>
       </div>

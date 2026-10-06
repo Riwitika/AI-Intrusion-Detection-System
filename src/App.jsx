@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import ProtectionBanner from './components/ProtectionBanner';
 import CameraPreview from './components/CameraPreview';
@@ -6,52 +6,129 @@ import ControlPanel from './components/ControlPanel';
 import StatusSection from './components/StatusSection';
 import ActivitySection from './components/ActivitySection';
 import SystemStats from './components/SystemStats';
+import SetProtectionTimeModal from './components/SetProtectionTimeModal';
+import { formatCountdown } from './utils/timeSchedule';
 
 export default function App() {
-  const [isProtectionReady, setIsProtectionReady] = useState(false);
+  const [isProtectionActive, setIsProtectionActive] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [schedule, setSchedule] = useState(null);
+  const [remainingSeconds, setRemainingSeconds] = useState(null);
+  const [hasEndedNotice, setHasEndedNotice] = useState(false);
 
-  const handleStartProtection = () => {
-    setIsProtectionReady(true);
+  // Real countdown timer effect
+  useEffect(() => {
+    if (!isProtectionActive || remainingSeconds == null) return;
+
+    if (remainingSeconds <= 0) {
+      // Automatically end protection when timer reaches 0
+      setIsProtectionActive(false);
+      setHasEndedNotice(true);
+      setRemainingSeconds(null);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setRemainingSeconds((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setIsProtectionActive(false);
+          setHasEndedNotice(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [isProtectionActive, remainingSeconds]);
+
+  // Open the Set Protection Time modal
+  const handleOpenScheduleModal = () => {
+    setHasEndedNotice(false);
+    setIsModalOpen(true);
   };
 
+  // Close the modal without activating
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  // Confirm schedule and start protection
+  const handleConfirmSchedule = (selectedSchedule) => {
+    setIsModalOpen(false);
+    setSchedule(selectedSchedule);
+    setRemainingSeconds(selectedSchedule.durationSeconds);
+    setIsProtectionActive(true);
+    setHasEndedNotice(false);
+  };
+
+  // Manual Stop Protection handler
   const handleStopProtection = () => {
-    setIsProtectionReady(false);
+    setIsProtectionActive(false);
+    setRemainingSeconds(null);
+    setHasEndedNotice(false);
   };
+
+  const formattedCountdown = formatCountdown(remainingSeconds);
 
   return (
     <div className="app-container">
       {/* Top Navbar / Brand Header */}
-      <Header isReady={isProtectionReady} />
+      <Header isActive={isProtectionActive} />
 
-      {/* Main Status Banner */}
-      <ProtectionBanner isReady={isProtectionReady} />
+      {/* Main Status Banner with Countdown and Schedule Details */}
+      <ProtectionBanner 
+        isActive={isProtectionActive} 
+        schedule={schedule}
+        countdown={formattedCountdown}
+        hasEndedNotice={hasEndedNotice}
+      />
 
       {/* High-level Security Telemetry */}
-      <SystemStats isReady={isProtectionReady} />
+      <SystemStats isActive={isProtectionActive} />
 
       {/* Primary Dashboard Grid */}
       <main className="dashboard-grid">
         {/* Left Column: Camera Viewport */}
         <section aria-label="Camera Feed">
-          <CameraPreview isReady={isProtectionReady} />
+          <CameraPreview 
+            isActive={isProtectionActive} 
+            countdown={formattedCountdown} 
+          />
         </section>
 
         {/* Right Column: Controls, Status & Activity */}
         <section style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }} aria-label="Dashboard Controls and Activity">
           <ControlPanel
-            isReady={isProtectionReady}
-            onStartProtection={handleStartProtection}
+            isActive={isProtectionActive}
+            countdown={formattedCountdown}
+            onOpenScheduleModal={handleOpenScheduleModal}
             onStopProtection={handleStopProtection}
           />
-          <StatusSection isReady={isProtectionReady} />
-          <ActivitySection isReady={isProtectionReady} />
+          <StatusSection 
+            isActive={isProtectionActive} 
+            schedule={schedule} 
+          />
+          <ActivitySection 
+            isActive={isProtectionActive} 
+            schedule={schedule}
+            hasEndedNotice={hasEndedNotice}
+          />
         </section>
       </main>
+
+      {/* Set Protection Time Interface / Modal */}
+      <SetProtectionTimeModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirmSchedule}
+      />
 
       {/* Application Footer */}
       <footer className="app-footer">
         <span>AI Intrusion Detection System &bull; College Project Prototype</span>
-        <span>Version 1.0.0 &bull; Initial UI Prototype</span>
+        <span>Version 1.1.0 &bull; Protection Scheduling &amp; Timer Active</span>
       </footer>
     </div>
   );
