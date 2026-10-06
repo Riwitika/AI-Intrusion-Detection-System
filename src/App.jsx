@@ -17,6 +17,10 @@ export default function App() {
   const [hasEndedNotice, setHasEndedNotice] = useState(false);
   const [cameraStatus, setCameraStatus] = useState('READY');
 
+  // AI & YOLO Person Detection State (Prompt 4)
+  const [aiEngineStatus, setAiEngineStatus] = useState('Standby');
+  const [detectedPersonCount, setDetectedPersonCount] = useState(0);
+
   // Real countdown timer effect
   useEffect(() => {
     if (!isProtectionActive || remainingSeconds == null) return;
@@ -26,6 +30,8 @@ export default function App() {
       setIsProtectionActive(false);
       setHasEndedNotice(true);
       setRemainingSeconds(null);
+      setAiEngineStatus('Standby');
+      setDetectedPersonCount(0);
       return;
     }
 
@@ -35,6 +41,8 @@ export default function App() {
           clearInterval(timer);
           setIsProtectionActive(false);
           setHasEndedNotice(true);
+          setAiEngineStatus('Standby');
+          setDetectedPersonCount(0);
           return 0;
         }
         return prev - 1;
@@ -69,6 +77,8 @@ export default function App() {
     setIsProtectionActive(false);
     setRemainingSeconds(null);
     setHasEndedNotice(false);
+    setAiEngineStatus('Standby');
+    setDetectedPersonCount(0);
   };
 
   const formattedCountdown = formatCountdown(remainingSeconds);
@@ -87,16 +97,21 @@ export default function App() {
       />
 
       {/* High-level Security Telemetry */}
-      <SystemStats isActive={isProtectionActive} />
+      <SystemStats 
+        isActive={isProtectionActive} 
+        detectedPersonCount={detectedPersonCount}
+      />
 
       {/* Primary Dashboard Grid */}
       <main className="dashboard-grid">
-        {/* Left Column: Camera Viewport with Live Webcam Stream */}
+        {/* Left Column: Camera Viewport with Live Webcam Stream & YOLO Canvas */}
         <section aria-label="Camera Feed">
           <CameraPreview 
             isActive={isProtectionActive} 
             countdown={formattedCountdown}
             onCameraStateChange={setCameraStatus}
+            onAiEngineStatusChange={setAiEngineStatus}
+            onDetectionCountChange={setDetectedPersonCount}
           />
         </section>
 
@@ -112,11 +127,13 @@ export default function App() {
             isActive={isProtectionActive} 
             schedule={schedule} 
             cameraStatus={cameraStatus}
+            aiEngineStatus={aiEngineStatus}
           />
           <ActivitySection 
             isActive={isProtectionActive} 
             schedule={schedule}
             hasEndedNotice={hasEndedNotice}
+            detectedPersonCount={detectedPersonCount}
           />
         </section>
       </main>
@@ -131,7 +148,7 @@ export default function App() {
       {/* Application Footer */}
       <footer className="app-footer">
         <span>AI Intrusion Detection System &bull; College Project Prototype</span>
-        <span>Version 1.2.0 &bull; Live Optical Surveillance Feed Active</span>
+        <span>Version 1.3.0 &bull; YOLO11n Real-Time Person Detection Active</span>
       </footer>
     </div>
   );

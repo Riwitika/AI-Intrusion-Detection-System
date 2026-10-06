@@ -1,7 +1,17 @@
 import React from 'react';
 import { Activity, Cpu, Camera, BellRing, Server } from 'lucide-react';
 
-export default function StatusSection({ isActive, schedule, cameraStatus }) {
+export default function StatusSection({ isActive, schedule, cameraStatus, aiEngineStatus }) {
+  // Determine displayed AI status based on Requirement 8
+  const currentAiStatus = aiEngineStatus || (isActive ? 'Loading Model...' : 'Standby');
+
+  const getAiBadgeClass = (status) => {
+    if (status === 'YOLO Active') return 'val-green';
+    if (status === 'Loading Model...') return 'val-amber';
+    if (status === 'Unavailable') return 'val-danger';
+    return 'val-muted';
+  };
+
   return (
     <div className="card-panel">
       <div className="card-header">
@@ -21,13 +31,14 @@ export default function StatusSection({ isActive, schedule, cameraStatus }) {
           <span className="indicator-val val-green">System Ready</span>
         </div>
 
+        {/* Prompt 8: AI Inference Engine reflecting actual detection engine */}
         <div className="status-indicator-row">
           <div className="indicator-title-group">
             <Cpu size={16} color="#94a3b8" />
             <span>AI Inference Engine</span>
           </div>
-          <span className={`indicator-val ${isActive ? 'val-green' : 'val-muted'}`}>
-            {isActive ? 'Armed & Listening' : 'Standby'}
+          <span className={`indicator-val ${getAiBadgeClass(currentAiStatus)}`}>
+            {currentAiStatus}
           </span>
         </div>
 
